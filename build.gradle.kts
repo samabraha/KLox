@@ -2,7 +2,7 @@ plugins {
     kotlin("jvm") version "2.0.21"
 }
 
-group = "com.develogica"
+group = "com.klox"
 version = "1.0-SNAPSHOT"
 
 repositories {
