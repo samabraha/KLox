@@ -50,10 +50,23 @@ class Scanner(private val source: String) {
 
             '"' -> string()
 
-            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' -> number()
+//            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' -> number()
 
-            else -> KLox.error(line, "Unexpected character.")
+            else -> {
+                if (isDigit(c)) number()
+                else if (isAlpha(c)) identifier()
+                else KLox.error(line, "Unexpected character.")
+            }
         }
+    }
+
+    private fun identifier() {
+        while (isAlphaNumeric(peek())) advance()
+
+        val text = source.substring(start, current)
+        var type = keywords[text]
+        if (type == null) type = IDENTIFIER
+        addToken(type)
     }
 
     private fun number() {
@@ -104,6 +117,14 @@ class Scanner(private val source: String) {
         return source[current + 1]
     }
 
+    private fun isAlpha(c: Char): Boolean {
+        return c in 'a'..'z'
+                && c in 'A'..'Z'
+                && c == '_'
+    }
+
+    private fun isAlphaNumeric(c: Char) = isAlpha(c) || isDigit(c)
+
     private fun isDigit(c: Char) = c in '0'..'9'
 
     private fun isAtEnd() = current >= source.length
@@ -113,5 +134,26 @@ class Scanner(private val source: String) {
     private fun addToken(type: TokenType, literal: Any? = null) {
         val text = source.substring(start, current)
         tokens += Token(type = type, lexeme = text, literal = literal, line = line)
+    }
+
+    companion object {
+        val keywords = mapOf(
+            "and" to AND,
+            "class" to CLASS,
+            "else" to ELSE,
+            "false" to FALSE,
+            "for" to FOR,
+            "fun" to FUN,
+            "if" to IF,
+            "nil" to NIL,
+            "or" to OR,
+            "print" to PRINT,
+            "return" to RETURN,
+            "super" to SUPER,
+            "this" to THIS,
+            "true" to TRUE,
+            "var" to VAR,
+            "while" to WHILE,
+        )
     }
 }
